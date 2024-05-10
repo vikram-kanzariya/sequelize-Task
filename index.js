@@ -1,8 +1,7 @@
 const express = require('express');
-const { User , A , B} = require('./controllers/userController');
-const { Customers } = require('./controllers/customerController')
+const { User , A , B , Post , Person , Task , Tool } = require('./controllers/userController');
 const { sequelize } = require('./models/database');
-const { Op, where } = require('sequelize');
+const { Op, where, DataTypes } = require('sequelize');
 const path = require('path');
 require('dotenv').config();
 
@@ -61,20 +60,21 @@ app.post("/createuser" , async(req , res) => {
     console.log('Some Error Occured: ' + error);
   }
 
-
 });
 
 // Get/Read Users
 app.get("/getusers" , async(req , res) => {
 
-  await sequelize.sync({ alter:true });
+  // await sequelize.sync({ alter:true });
 
-  let users = await User.findAll({
+  let users = await User.findAll({ 
     order: sequelize.literal('id ASC'),
+    raw:true
     // offset:5,
     // limit:10,
     // group:'age'
   });
+  // console.log(users);  
   return res.render('users' , { data:users })
 });
 
@@ -100,7 +100,7 @@ app.post("/updateuser" , async(req , res) => {
   let password = req.body.password;
 
   try {
-    await sequelize.sync({ alter:true });
+    // await sequelize.sync({ alter:true });
 
     const users = await  User.update({ 
       firstName: fname , 
@@ -141,14 +141,14 @@ app.get("/deleteuser" , async(req , res) => {
 
 
 
-const insertCustomers = async() => {
-  await sequelize.sync({ alter:true });
-  const user = await  Customers.create({ 
-    fname:"Hardevsinh", 
-    lname:"Zaala", 
-  });
-  console.log("Inserted SuccessFully");
-}
+// const insertCustomers = async() => {
+//   // await sequelize.sync({ alter:true });
+//   const user = await  Customers.create({ 
+//     fname:"Hardevsinh", 
+//     lname:"Zaala", 
+//   });
+//   console.log("Inserted SuccessFully");
+// }
 const findUsers = async() => {
   const users = await User.findAll({
     // attributes:[ 'lastName' , [sequelize.fn('COUNT' , sequelize.col('firstName')) , 'fname'] ]
@@ -199,14 +199,19 @@ const newPass = async() => {
 };
 // newPass();
 
-const classes = async() => {
-  await sequelize.sync({ alter:true })
 
+// ---> Asscociations
+const Asscociations = async() => {
+  // await sequelize.sync({ alter:true });
+
+  // ---> One to One
   // A.hasOne(B , {
   //   foreignKey:'myFoodId',
   // });
   // B.belongsTo(A);
 
+
+  // ---> One to Many
   const Team = sequelize.define('Team');
   const Player = sequelize.define('Player');
 
@@ -215,9 +220,86 @@ const classes = async() => {
   });
   Player.belongsTo(Team);
 
+  // ---> Many to Many Association <---
+  const Movie = sequelize.define('Movie' , { name: DataTypes.STRING });
+  const Actor = sequelize.define('Actor' , { name: DataTypes.STRING });
+
+  // Movie.belongsToMany(Actor , { through: 'ActorMovies' });
+  // Actor.belongsToMany(Movie , { through: 'ActorMovies' });
+
+  const ActorMovies = sequelize.define('ActorMovies' , {
+    MovieId:{
+      type:DataTypes.INTEGER , 
+      references:{ model:Movie , key:'id' },
+    },
+    ActorId:{
+      type:DataTypes.INTEGER,
+      references:{ model:Actor , key:'id' }
+    }
+  });
+  Movie.belongsToMany(Actor , { through: 'ActorMovies' });
+  Actor.belongsToMany(Movie , { through: 'ActorMovies' });
+
+
+  const Ship = sequelize.define('ship' , {
+    name:{ type:DataTypes.TEXT  },
+    crewCapacity:{ type:DataTypes.INTEGER },
+    amountOfSails:{ type:DataTypes.INTEGER },
+  },
+  { timestamps:false }
+  );
+
+
+  const Captain = sequelize.define('captain' , {
+    name:{ type:DataTypes.TEXT  },
+    skillLevel:{
+      type:DataTypes.INTEGER , 
+      validate:{ min:1 , max:10 }
+    },
+  },
+  { timestamps:false }
+  );
+  
+  Captain.hasOne(Ship);
+  Ship.belongsTo(Captain);
+
 };
-classes();
+// Asscociations();
+
+
+
+// Paranoids (For Soft/Hard delete and Restoring Soft Deletions)
+const Paranoid = async() => {
+  // let para = await Post.create({ firstName:"Abhishek" , lastName:"Zakhariya" });
+  // console.log(para instanceof Post); // True
+  // await para.destroy(); // Would just set the `deletedAt` flag
+  // await para.destroy({ force:true }); // Delete Record From DataBase
+
+  
+  // await Post.destroy({where:{id:[1,2,3,4,8]}});
+  // Post.restore({ where:{id:8} });
+
+  // await Post.destroy({where:{id:10}})
+  await Post.findByPk(10);
+}
+// Paranoid();
+
+
+// Eager Laoding
+const EagerLoad = async() => {
+  Person.hasMany(Task);
+  Task.belongsTo(Person);
+  Person.hasMany(Tool, { as: 'Instruments' });
+
+//   const task = await Task.findAll({ raw:true , include:Person });
+//  console.log(JSON.stringify(task , null ,2));
+//  console.log(task);
+
+const user = await Person.findAll({ include:{ model:Task }})
+console.log(JSON.stringify(user , null ,2));
+}
+// EagerLoad();
 
 app.listen(process.env.PORT , () => {
   console.log(`Running on Port: ${ process.env.PORT }`);
-});
+}); 

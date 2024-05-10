@@ -48,6 +48,16 @@ exports.User = sequelize.define(
     age:{
       type: DataTypes.INTEGER
     },
+
+    fullName:{
+      type:DataTypes.VIRTUAL,
+      get(){
+        return `${this.firstName} ${this.lastName}`
+      },
+      set(value){
+        throw new Error("This is New Error" , value);
+      }
+    },
    
   },
 
@@ -62,6 +72,36 @@ exports.A = sequelize.define('A' , {
 });
 exports.B = sequelize.define('B');
 
+
+class Post extends Model {};
+
+exports.Post = Post.init(
+  {
+    firstName:DataTypes.STRING,
+    lastName:DataTypes.STRING,
+  },
+  {
+    sequelize , 
+    paranoid:true,
+    deletedAt:'destroyTime',
+  }
+);
+
+
+exports.Person = sequelize.define('person', { name: DataTypes.STRING }, { timestamps: false });
+exports.Task = sequelize.define('task', { name: DataTypes.STRING }, { timestamps: false });
+exports.Tool = sequelize.define(
+  'tool',
+  {
+    name: DataTypes.STRING,
+    size: DataTypes.STRING,
+  },
+  { timestamps: false },
+);
+
+(async() => {
+  await sequelize.sync({ alter:true })
+})()
 
 // exports.Userone = sequelize.define('Userone' ,{
 //   username:{
