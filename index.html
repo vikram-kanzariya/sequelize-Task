@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Demo</title>
+  <style>
+    .PinkBackGround{
+      color: rgb(45, 45, 153);
+      background-color: pink;
+      font-size: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  
+  <div id="app"> {{ message }} <br>
+    {{ "Random Number: " + Math.ceil(Math.random() * 5) }}
+    <div v-bind:class="vueClass">This text is in red Color</div>
+
+    <p v-if="count > 0">More than zero</p>
+    <p v-e="count > 3">More than Three</p>
+    <p v-if="count > 3">More than Three</p>
+  </div>
+
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const app = Vue.createApp({
+    data(){
+      return{
+        message:"Hello World!..." , 
+        vueClass:'PinkBackGround' , 
+      }
+    }
+  });
+
+  app.mount('#app');
+</script>
+
+</body>
+</html>

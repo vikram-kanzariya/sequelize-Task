@@ -1,0 +1,32 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+h2{
+  text-align: center;
+}
+
+.container{
+  height: 60%;
+  width: 40%;
+  box-shadow: 2px 2px 12px 2px black;
+  margin: 5% auto;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+#submit{
+  padding: 8px;
+}
+
+.container , label , input{
+  font-size: 19px;
+}
+
