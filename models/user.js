@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes, Model, QueryTypes, HasOne, HasMany } = require('sequelize');
-const { sequelize } = require('../models/database');
+const { sequelize } = require('../config/database');
 const md5 = require("md5") ;
 const bcrypt = require('bcrypt')
 
@@ -11,6 +11,8 @@ exports.User = sequelize.define(
       autoIncrement:true,
       primaryKey:true,
     },
+
+    title: Sequelize.STRING,
 
     username:{
       type:DataTypes.STRING,
@@ -67,10 +69,16 @@ exports.User = sequelize.define(
 );
 
 
-exports.A = sequelize.define('A' , {
-  myFoodId:{ type:DataTypes.INTEGER }
+exports.A = sequelize.define('A' , 
+{
+  fname:DataTypes.STRING,
+  lname:DataTypes.STRING
 });
-exports.B = sequelize.define('B');
+
+exports.B = sequelize.define('B', {
+  myFoodId:{ type:DataTypes.INTEGER },
+  age:DataTypes.INTEGER
+});
 
 
 class Post extends Model {};
@@ -98,20 +106,3 @@ exports.Tool = sequelize.define(
   },
   { timestamps: false },
 );
-
-(async() => {
-  await sequelize.sync({ alter:true })
-})()
-
-// exports.Userone = sequelize.define('Userone' ,{
-//   username:{
-//     type:DataTypes.STRING,
-//     allowNull:false,
-//     validate:{ notEmpty:true },
-//     get(){
-//       const rawValue = this.getDataValue('username');
-//       return rawValue ? rawValue.toUpperCase() : null
-//     },
-//   },
-  
-// });
